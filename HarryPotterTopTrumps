@@ -1,0 +1,157 @@
+import random
+import requests
+import time
+def display_score(score):
+    print('Your current score is: {score}')
+def read_high_scores(filename):
+    try:
+        with open(filename, 'r') as scores_file:
+            scores = scores_file.read().strip().split('\n')
+            return [int(score) for score in scores]
+    except FileNotFoundError:
+        return []
+def write_high_scores(filename, high_scores):
+    with open(filename, 'w') as scores_file:
+        for score in high_scores:
+            scores_file.write(str(score) + '\n')
+def display_top_scores(high_scores):
+    print("\n===== Top 5 High Scores =====")
+    #start=1 so that the high score reads as 1-5 instead of 0-4
+    #enumerate generates index and element for items in a sequence
+    for index, high_score in enumerate(high_scores, start=1):
+        print(f"{index}. {high_score}")
+def random_hp():
+    url = 'https://hp-api.onrender.com/api/characters'
+    response = requests.get(url)
+    # Check if the response is valid and contains JSON data
+    if response.status_code != 200:
+        print(f"Failed to get data from the API. Status code: {response.status_code}")
+        return None
+    try:
+        characters = response.json()
+        random_character = random.choice(characters)
+        # Create mappings for attributes
+        house_values = {
+            'Gryffindor': 4,
+            'Ravenclaw': 3,
+            'Hufflepuff': 2,
+            'Slytherin': 1,
+        }
+        ancestry_values = {
+            'pure-blood': 3,
+            'half-blood': 2,
+            'muggle-born': 1,
+            'unknown': 0,
+        }
+        species_values = {
+            'human': 2,
+            'half-giant': 1,
+            'elf': 1,
+            'goblin': 1,
+            'centaur': 1,
+            # Add other species here
+        }
+        wand_core_values = {
+            'phoenix feather': 3,
+            'dragon heartstring': 2,
+            'unicorn hair': 1,
+            # Add other wand cores here
+        }
+        # Assign numeric values to attributes based on mappings
+        hp_stats = {
+            'name': random_character['name'],
+            'id': random_character['id'],
+            'house': house_values.get(random_character['house'], 0),
+            'ancestry': ancestry_values.get(random_character['ancestry'], 0),
+            'species': species_values.get(random_character['species'], 0),
+            'wand': wand_core_values.get(random_character['wand']['core'], 0),
+        }
+        return hp_stats
+    except requests.exceptions.JSONDecodeError as e:
+        print(f"Failed to parse JSON data: {e}")
+        return None
+print("\nWelcome to the Harry Potter Top Trumps game")
+print("Presented to you by Group 4")
+time.sleep(2)
+print("\nThe aim of the game is to choose a stat that will beat your opponent")
+time.sleep(2)
+print("\nHere are the rules of the game:")
+time.sleep(2)
+print("1. You will be randomly assigned 2 characters")
+print("2. Select your character as directed")
+print("3. Select the stat you would like to use")
+print("4. If the stat you have chosen for your character is of higher value than your opponent's, you win!")
+print("\nLet's get started!")
+time.sleep(2)
+input("\nPress Enter when you're ready to continue...\n")
+def choose_character(character_one, character_two):
+    print("\nChoose a character:")
+    print("1. {}".format(character_one['name']))
+    print("2. {}".format(character_two['name']))
+    while True:
+        character_choice = input("Enter the number of the character (1 or 2): ")
+        if character_choice == '1':
+            return character_one
+        elif character_choice == '2':
+            return character_two
+        else:
+            print("Invalid choice. Please enter 1 or 2.")
+def run():
+    while True:
+        character_one = random_hp()
+        character_two = random_hp()
+        if character_one != character_two:
+            break
+    my_hp = choose_character(character_one, character_two)
+    if my_hp is None:
+        return
+    print('\nYou chose {}'.format(my_hp['name']))
+    print('Available stats:', ', '.join(my_hp.keys()))
+    print("Enter 'exit' to end the game.")
+    # Ask the player to choose a stat
+    while True:
+        stat_choice = input('Which stat do you want to use? ')
+        if stat_choice.lower() == 'exit':
+            return None
+        opponent_hp = random_hp()
+        if opponent_hp is None:
+            return None
+        print('The opponent chose {}'.format(opponent_hp['name']))
+        my_stat = my_hp.get(stat_choice.lower())
+        opponent_stat = opponent_hp.get(stat_choice.lower())
+        if my_stat is None or opponent_stat is None:
+            print('Invalid stat choice.')
+        else:
+            if my_stat > opponent_stat:
+                print('You Win!')
+                return True
+            elif my_stat < opponent_stat:
+                print('You Lose!')
+                return False
+            else:
+                print('Draw!')
+                return None
+# Main game loop
+score = 0
+while True:
+    result = run()
+    if result is None:
+        break
+    elif result:
+        score += 1
+print(f'\nThe game is over! Your final score is: {score}')
+# Read high scores from 'high_scores.txt' file
+high_scores = read_high_scores('high_scores.txt')
+if not high_scores or score > max(high_scores):
+    print("Congratulations! You've got a new high score!")
+    high_scores.append(score)
+else:
+    print("Unlucky, you didn't beat the highest score.")
+# Sort in descending order using reverse
+high_scores.sort(reverse=True)
+# Keep top 5 high scores using slice notation [:5]
+high_scores = high_scores[:5]
+write_high_scores('high_scores.txt', high_scores)
+# Display top 5!
+display_top_scores(high_scores)
+
