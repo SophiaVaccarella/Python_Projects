@@ -1,0 +1,57 @@
+from random import randint
+
+def play_game(min_num, max_num, max_guesses):  # we're playing multiple rounds, so creating a function to change the numbers and max guesses each round
+    # Generate a random number within the specified range
+    random_number: int = randint(min_num, max_num)
+    print(f'Guess the number in the range from {min_num} to {max_num}.')
+
+    # Initialize the guess count
+    guess_count = 0
+
+    # Run the loop for the game
+    while guess_count < max_guesses:
+        # Increment the guess count
+        guess_count += 1
+
+        # Get the user guess
+        try:
+            user_guess: int = int(input('Guess: '))
+        except ValueError as e:
+            print('Please enter a valid number.')
+            continue
+
+        # Check the user guess
+        if user_guess > random_number:
+            print('The number is lower')
+        elif user_guess < random_number:
+            print('The number is higher')
+        else:
+            print(f'You got it in {guess_count} guesses!')
+            return True  # Return True if the user guessed correctly
+
+    print(f'You ran out of guesses. The correct number was {random_number}.')
+    return False  # Return False if the user didn't guess correctly
+
+
+# Main game loop
+while True:
+    if play_game(1, 10, 3):  # First round with a random number between 1 and 10
+        play_again = input('Do you want to play again? (yes/no): ')
+        if play_again.lower() != 'yes':
+            break
+    else:
+        break  #if the user runs out of guesses, then the game ends
+
+    if play_game(1, 100, 10):  # First round with a random number between 1 and 10
+        play_again = input('Do you want to play again? (yes/no): ')
+        if play_again.lower() != 'yes':
+            break
+    else:
+        break  #if the user runs out of guesses, then the game ends
+
+    if play_game(1, 1000, 20):  # First round with a random number between 1 and 10
+        play_again = input('Do you want to play again? (yes/no): ')
+        if play_again.lower() != 'yes':
+            break
+    else:
+        break
