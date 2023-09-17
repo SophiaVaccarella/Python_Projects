@@ -6,4 +6,5 @@ My repository of Python projects whilst I develop my skills. Below is a descript
 
 📝 Mad Libs: Project 1 from a Python projects course on Udemy. I adapted the original code to allow users to choose between 3 different stories. I added a while loop to avoid the program ending if the user inputs an invalid choice. 
 
+🔢 Number Guessing:
 
